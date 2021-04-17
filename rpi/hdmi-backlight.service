@@ -1,0 +1,12 @@
+[Unit]
+Description=Hdmi Backlight via Leds
+
+[Service]
+Type=simple
+ExecStart=/home/pi/hdmi-backlight.sh
+Restart=always
+RestartSec=15
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
