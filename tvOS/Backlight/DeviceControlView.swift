@@ -22,6 +22,18 @@ struct DeviceControlView: View {
     @State var disablePlus: Bool = true
     @State var disableMinus: Bool = false
 
+    var brightnessText: String {
+        var str = ""
+        for char in String(self.selectedBrightness) {
+            if char == "5" {
+                str.append("biz")
+            } else {
+                str.append(char)
+            }
+        }
+        return str
+    }
+
     var body: some View {
         Group {
             if deviceManager.detailedDeviceInformation != nil {
@@ -29,17 +41,17 @@ struct DeviceControlView: View {
                     Text("Brightness").font(.title2)
                     Spacer()
                         Button(action: {
-                            selectedBrightness += 1
+                            selectedBrightness += 5
                             updateBrightness()
                         }, label: {
                             Text("+").font(.largeTitle).bold()
                             // Image(systemName: "plus.rectangle").font(.largeTitle)
                         }).disabled(self.disablePlus)
 
-                        Text("\(selectedBrightness)").font(.title)
+                        Text("\(brightnessText)").font(.title)
 
                         Button(action: {
-                            selectedBrightness -= 1
+                            selectedBrightness -= 5
                             updateBrightness()
                         }, label: {
                             Text("-").font(.largeTitle).bold()
