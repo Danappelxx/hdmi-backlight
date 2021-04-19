@@ -12,6 +12,9 @@ struct ContentView: View {
     @EnvironmentObject var deviceManager: DeviceManager
     @EnvironmentObject var defaults: Defaults
 
+    @Environment(\.resetFocus) var resetFocus
+    @Namespace var namespace
+
     @State var alertError: String?
 
     var body: some View {
@@ -21,13 +24,18 @@ struct ContentView: View {
                     DeviceControlView()
                     Spacer()
                     HStack {
-                        Spacer()
+                        Text("")
+                            .frame(maxWidth: .infinity)
+                            .prefersDefaultFocus(false, in: namespace)
+                            .disabled(true)
+                            .focusable()
                         NavigationLink(
                             destination: DevicePickerView(),
                             label: {
                                 Image(systemName: "gear").font(.largeTitle)
                             }
                         )
+                            .prefersDefaultFocus(in: namespace)
                     }
                 }
             } else if defaults.deviceId != nil {
@@ -36,6 +44,7 @@ struct ContentView: View {
                 DevicePickerView()
             }
         }
+        .focusScope(namespace)
         .onReceive(self.deviceManager.$lastError) { error in
             self.alertError = error
         }
@@ -45,6 +54,9 @@ struct ContentView: View {
                 return
             }
             self.deviceManager.fetchDetailedDeviceInformation(deviceId: deviceId)
+        }
+        .onAppear {
+            resetFocus(in: namespace)
         }
         .alert(item: self.$alertError) { error in
             Alert(title: Text(error))

@@ -12,51 +12,18 @@ struct DeviceControlView: View {
     @EnvironmentObject var deviceManager: DeviceManager
     @EnvironmentObject var defaults: Defaults
 
-    @State var selectedBrightness: Int = 100 {
-        didSet {
-            if selectedBrightness > 100 {
-                selectedBrightness = 100
-            }
-        }
-    }
-    @State var disablePlus: Bool = true
-    @State var disableMinus: Bool = false
-
-    var brightnessText: String {
-        var str = ""
-        for char in String(self.selectedBrightness) {
-            if char == "5" {
-                str.append("biz")
-            } else {
-                str.append(char)
-            }
-        }
-        return str
-    }
+    @State var brightness: Int? = 100
 
     var body: some View {
         Group {
-            if deviceManager.detailedDeviceInformation != nil {
+            if let deviceInfo = deviceManager.detailedDeviceInformation, let brightness = brightness {
                 VStack {
                     Text("Brightness").font(.title2)
                     Spacer()
-                        Button(action: {
-                            selectedBrightness += 5
-                            updateBrightness()
-                        }, label: {
-                            Text("+").font(.largeTitle).bold()
-                            // Image(systemName: "plus.rectangle").font(.largeTitle)
-                        }).disabled(self.disablePlus)
-
-                        Text("\(brightnessText)").font(.title)
-
-                        Button(action: {
-                            selectedBrightness -= 5
-                            updateBrightness()
-                        }, label: {
-                            Text("-").font(.largeTitle).bold()
-                            // Image(systemName: "minus.rectangle").font(.largeTitle)
-                        }).disabled(self.disableMinus)
+                    BrightnessPickerView(increment: 5, bounds: 0..<100, brightness: brightness) { brightness in
+                        self.brightness = brightness
+                        self.deviceManager.setBrightness(brightness, deviceId: deviceInfo.deviceID)
+                    }
                 }
             } else {
                 Spacer()
@@ -64,26 +31,24 @@ struct DeviceControlView: View {
         }
         .padding()
         .onReceive(deviceManager.$detailedDeviceInformation) { device in
-            guard let device = device else {
+            guard let device = device, self.verifyDevice(device: device) else {
                 return
             }
-            self.verifyDevice(device: device)
+            self.deviceManager.fetchBrightness(deviceId: device.deviceID)
+        }
+        .onReceive(deviceManager.$currentBrightness) { brightness in
+            self.brightness = brightness
         }
     }
 
-    private func verifyDevice(device: DeviceDetailInformation) {
+    private func verifyDevice(device: DeviceDetailInformation) -> Bool {
         if !device.functions.contains("setBrightness") {
             DispatchQueue.main.async {
                 deviceManager.lastError = "Selected device is not supported by Backlight"
                 defaults.deviceId = nil
             }
+            return false
         }
-    }
-
-    private func updateBrightness() {
-        self.disablePlus = self.selectedBrightness >= 100
-        self.disableMinus = self.selectedBrightness <= 0
-
-        deviceManager.setBrightness(self.selectedBrightness, deviceId: deviceManager.detailedDeviceInformation!.deviceID)
+        return true
     }
 }

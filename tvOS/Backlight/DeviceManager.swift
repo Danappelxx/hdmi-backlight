@@ -10,12 +10,8 @@ import ParticleSwift
 
 public class DeviceManager: ObservableObject {
     @Published public var devices: [DeviceInformation] = []
-    @Published public var detailedDeviceInformation: DeviceDetailInformation? = nil {
-        willSet {
-            // in case this is externally set to nil
-            self.objectWillChange.send()
-        }
-    }
+    @Published public var detailedDeviceInformation: DeviceDetailInformation? = nil
+    @Published public var currentBrightness: Int? = nil
     @Published public var lastError: String? = nil
 
     public static let shared = DeviceManager()
@@ -64,6 +60,24 @@ public class DeviceManager: ObservableObject {
     public func setBrightness(_ value: Int, deviceId: String) {
         self.particle.callFunction("setBrightness", deviceID: deviceId, argument: String(value)) { result in
             print("setBrightness result: \(result)")
+        }
+    }
+
+    public func fetchBrightness(deviceId: String) {
+        self.particle.variableValue("brightness", deviceID: deviceId) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    self.lastError = "\(error)"
+                case .success(let result):
+                    guard let brightness = result["result"] as? Int else {
+                        self.lastError = "Failed to fetch device brightness."
+                        self.currentBrightness = nil
+                        return
+                    }
+                    self.currentBrightness = brightness
+                }
+            }
         }
     }
 }

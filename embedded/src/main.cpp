@@ -21,8 +21,13 @@ int setBrightness(String input) {
     return brightness;
 }
 
+int getBrightness() {
+    return (long)((float)100 * ((float)FastLED.getBrightness() / 255)) / 5 * 5;
+}
+
 void setup() {
     Particle.function("setBrightness", setBrightness);
+    Particle.variable("brightness", getBrightness);
 
     Serial1.begin(115200);
     serBuf.setup();
