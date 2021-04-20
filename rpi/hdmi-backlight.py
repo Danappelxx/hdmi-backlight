@@ -49,6 +49,9 @@ class VideoCapture:
     # read frames as soon as they are available, keeping only most recent one
     def _reader(self):
         while True:
+            if not self.cap:
+                print("Exiting video capture loop")
+                break
             ret, frame = self.cap.read()
             if not self.q.empty():
                 try:
@@ -57,6 +60,7 @@ class VideoCapture:
                     pass
             self.q.put((ret, frame))
             if not ret:
+                print("Exiting video capture loop")
                 break
 
     def read(self):
@@ -68,19 +72,23 @@ class VideoCapture:
 def cleanup():
     # ignore additional signals
     print("Cleaning up resources...")
+    if cap is not None:
+        icap = cap.cap
+        cap.cap = None
+        time.sleep(1)
+        icap.release()
+        print("Released video capture")
     if leds is not None:
-        leds.write([ [0, 0, 0] for _ in range(3)])
+        leds.write([ [0, 0, 0] for _ in range(4)])
         leds.close()
         print("Closed serial port")
-    if cap is not None:
-        cap.cap.release()
-        print("Released video capture")
     if iters is not 0:
         print(f"Performance statistics (average over {iters} iters):")
-        print(f"  read frame:  {np.format_float_positional(counters['read frame'] / iters, trim='-')} sec")
-        print(f"  calc mean:   {np.format_float_positional(counters['processing mean'] / iters, trim='-')} sec")
-        print(f"  led io:      {np.format_float_positional(counters['led io'] / iters, trim='-')} sec")
-        print(f"  iter:        {np.format_float_positional(counters['iter'] / iters, trim='-')} sec")
+        print(f"  read frame:  {np.format_float_positional(counters['read frame'] / iters, trim='-')} sec ({100 * counters['read frame'] / counters['iter'] :.2f}%)")
+        print(f"  adjust bounds:  {np.format_float_positional(counters['bounds'] / iters, trim='-')} sec ({100 * counters['bounds'] / counters['iter'] :.2f}%)")
+        print(f"  calc mean:   {np.format_float_positional(counters['processing mean'] / iters, trim='-')} sec ({100 * counters['processing mean'] / counters['iter'] :.2f}%)")
+        print(f"  led io:      {np.format_float_positional(counters['led io'] / iters, trim='-')} sec ({100 * counters['led io'] / counters['iter'] :.2f}%)")
+        print(f"  iter:        {np.format_float_positional(counters['iter'] / iters, trim='-')} sec ({100 * counters['iter'] / counters['iter'] :.2f}%)")
 
 def signal_handler(signum, frame):
     # ignore additional signals
@@ -94,6 +102,7 @@ counters = {
     "processing mean": 0,
     "led io": 0,
     "iter": 0,
+    "bounds": 0
 }
 iters = 0
 
@@ -117,6 +126,20 @@ cap.start()
 def mean_color(frame):
     return frame.mean(axis=0).mean(axis=0)
 
+def split(frame):
+    upper_half, lower_half = np.array_split(frame, 2)
+    upper_left, upper_right = np.array_split(upper_half, 2, axis=1)
+    lower_left, lower_right = np.array_split(lower_half, 2, axis=1)
+    return [upper_left, upper_right, lower_left, lower_right]
+
+def find_bounds(frame):
+    y_nonzero, x_nonzero, _ = np.nonzero(frame)
+    bounds = [np.min(y_nonzero), np.max(y_nonzero), np.min(x_nonzero), np.max(x_nonzero)]
+    return bounds
+
+def apply_bounds(frame):
+    return frame[bounds[0]:bounds[1]+1, bounds[2]:bounds[3]+1]
+
 pool = ThreadPool(4)
 
 bounds = None
@@ -130,26 +153,31 @@ while True:
         print("Failed to read frame")
         break
 
-    if iters % 100 == 0:
-        print(iters)
+    start = time.perf_counter()
+    if iters % 1000 == 0:
+        # print(iters)
+        bounds = find_bounds(frame)
+    if bounds is not None:
+        before_bounds_shape = frame.shape
+        frame = apply_bounds(frame)
+        after_bounds_shape = frame.shape
+        if before_bounds_shape == after_bounds_shape:
+            bounds = None
+    counters["bounds"] += time.perf_counter() - start
 
-    # bgr to rgb
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    upper_half, lower_half = np.vsplit(frame, 2)
-    upper_left, upper_right = np.hsplit(upper_half, 2)
-    lower_left, lower_right = np.hsplit(lower_half, 2)
+    # areas: [upper_left, upper_right, lower_left, lower_right]
+    areas = split(frame)
 
     # run computation in threadpool
     start = time.perf_counter()
-    areas = [upper_left, upper_right, lower_left, lower_right]
     dom_colors = np.zeros((len(areas), 3))
     def process_area(i):
         dom_colors[i] = mean_color(areas[i])
     pool.map(process_area, range(len(areas)))
     counters["processing mean"] += time.perf_counter() - start
 
-    colors = [ [int(c[0]), int(c[1]), int(c[2])] for c in dom_colors]
+    # bgr to rgb
+    colors = [ [int(c[2]), int(c[1]), int(c[0])] for c in dom_colors]
 
     start = time.perf_counter()
     leds.write(colors)
