@@ -28,7 +28,7 @@ class Leds:
         return self.device.readline().decode('utf-8')
 
     def write(self, colors):
-        # color: [[int;3];4]
+        # color: [[int;3];6]
         data = [52, 25]
         for color in colors:
             data += color
@@ -79,7 +79,7 @@ def cleanup():
         icap.release()
         print("Released video capture")
     if leds is not None:
-        leds.write([ [0, 0, 0] for _ in range(4)])
+        leds.write([ [0, 0, 0] for _ in range(6)])
         leds.close()
         print("Closed serial port")
     if iters is not 0:
@@ -128,9 +128,9 @@ def mean_color(frame):
 
 def split(frame):
     upper_half, lower_half = np.array_split(frame, 2)
-    upper_left, upper_right = np.array_split(upper_half, 2, axis=1)
-    lower_left, lower_right = np.array_split(lower_half, 2, axis=1)
-    return [upper_left, upper_right, lower_left, lower_right]
+    upper_left, upper_middle, upper_right = np.array_split(upper_half, 3, axis=1)
+    lower_left, lower_middle, lower_right = np.array_split(lower_half, 3, axis=1)
+    return [upper_left, upper_middle, upper_right, lower_left, lower_middle, lower_right]
 
 def find_bounds(frame):
     y_nonzero, x_nonzero, _ = np.nonzero(frame)
@@ -165,7 +165,7 @@ while True:
             bounds = None
     counters["bounds"] += time.perf_counter() - start
 
-    # areas: [upper_left, upper_right, lower_left, lower_right]
+    # areas: [upper_left, upper_middle, upper_right, lower_left, lower_middle, lower_right]
     areas = split(frame)
 
     # run computation in threadpool

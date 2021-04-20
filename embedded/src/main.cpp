@@ -52,23 +52,35 @@ void loop() {
             return;
         }
 
-        CRGB upper_left = readColor(); // 66-91
-        CRGB upper_right = readColor(); // 41-66
-        CRGB lower_left = readColor(); // 0-16, 91-100
-        CRGB lower_right = readColor(); // 16-41
+        // top & bottom strips are 32 pixels, left & right are 18
+        // bottom strip: 0-32 (0-10, 10-22, 22-32)
+        // right strip: 32-50 (32-41, 41-50)
+        // top strip: 50-82 (50-60, 60-72, 72-82)
+        // left strip: 82-100 (82-91, 91-100)
+
+        CRGB upper_left = readColor(); // 72-82, 82-91 (19)
+        CRGB upper_middle = readColor(); // 60-72 (12)
+        CRGB upper_right = readColor(); //  41-50, 50-60 (19)
+        CRGB lower_left = readColor(); // 0-10, 91-100 (19)
+        CRGB lower_middle = readColor(); // 10-22 (12)
+        CRGB lower_right = readColor(); // 22-32, 32-41 (19)
 
         for (int i = 0; i < 100; i++) {
             CRGB color;
-            if (i < 16) {
-                color = lower_left;
+            if (i < 10) {
+                color = lower_left; // 0-10
+            } else if (i < 22) {
+                color = lower_middle; // 10-22
             } else if (i < 41) {
-                color = lower_right;
-            } else if (i < 66) {
-                color = upper_right;
+                color = lower_right; // 22-41
+            } else if (i < 60) {
+                color = upper_right;  // 41-60
+            } else if (i < 72) {
+                color = upper_middle; // 60-72
             } else if (i < 91) {
-                color = upper_left;
+                color = upper_left; // 72-91
             } else {
-                color = lower_left;
+                color = lower_left; // 91-100
             }
             leds[i] = color;
         }
