@@ -77,6 +77,7 @@ def cleanup():
         print("Released video capture")
     if iters is not 0:
         print(f"Performance statistics (average over {iters} iters):")
+        print(f"  read frame:  {np.format_float_positional(counters['read frame'] / iters, trim='-')} sec")
         print(f"  calc mean:   {np.format_float_positional(counters['processing mean'] / iters, trim='-')} sec")
         print(f"  led io:      {np.format_float_positional(counters['led io'] / iters, trim='-')} sec")
         print(f"  iter:        {np.format_float_positional(counters['iter'] / iters, trim='-')} sec")
@@ -89,6 +90,7 @@ def signal_handler(signum, frame):
 
 # performance counters
 counters = {
+    "read frame": 0,
     "processing mean": 0,
     "led io": 0,
     "iter": 0,
@@ -121,7 +123,9 @@ bounds = None
 while True:
     iter_start = time.perf_counter()
 
+    start = time.perf_counter()
     ret, frame = cap.read()
+    counters["read frame"] += time.perf_counter() - start
     if not ret:
         print("Failed to read frame")
         break
