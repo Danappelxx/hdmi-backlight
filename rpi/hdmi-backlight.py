@@ -124,7 +124,7 @@ else:
 cap.start()
 
 def mean_color(frame):
-    return frame.mean(axis=0).mean(axis=0)
+    return frame.mean(axis=0, dtype=np.uint64).mean(axis=0, dtype=np.uint64)
 
 def split(frame):
     upper_half, lower_half = np.array_split(frame, 2)
@@ -133,8 +133,34 @@ def split(frame):
     return [upper_left, upper_middle, upper_right, lower_left, lower_middle, lower_right]
 
 def find_bounds(frame):
-    y_nonzero, x_nonzero, _ = np.nonzero(frame)
-    bounds = [np.min(y_nonzero), np.max(y_nonzero), np.min(x_nonzero), np.max(x_nonzero)]
+    y_mid = frame.shape[0] // 2
+    x_mid = frame.shape[1] // 2
+
+    y_nonzero_min = 0
+    for y in range(frame.shape[0]):
+        if (frame[y,x_mid] != [0,0,0]).any():
+            y_nonzero_min = y
+            break
+
+    y_nonzero_max = frame.shape[0]-1
+    for y in range(frame.shape[0]-1, -1, -1): # range(start, stop, step)
+        if (frame[y, x_mid] != [0,0,0]).any():
+            y_nonzero_max = y
+            break
+
+    x_nonzero_min = 0
+    for x in range(frame.shape[1]):
+        if (frame[y_mid,x] != [0,0,0]).any():
+            x_nonzero_min = x
+            break
+
+    x_nonzero_max = frame.shape[1]-1
+    for x in range(frame.shape[1]-1, -1, -1): # range(start, stop, step)
+        if (frame[y_mid, x] != [0,0,0]).any():
+            x_nonzero_max = x
+            break
+
+    bounds = [y_nonzero_min, y_nonzero_max, x_nonzero_min, x_nonzero_max]
     return bounds
 
 def apply_bounds(frame):
@@ -170,14 +196,14 @@ while True:
 
     # run computation in threadpool
     start = time.perf_counter()
-    dom_colors = np.zeros((len(areas), 3))
+    dom_colors = np.zeros((len(areas), 3), dtype=np.uint64)
     def process_area(i):
         dom_colors[i] = mean_color(areas[i])
     pool.map(process_area, range(len(areas)))
     counters["processing mean"] += time.perf_counter() - start
 
     # bgr to rgb
-    colors = [ [int(c[2]), int(c[1]), int(c[0])] for c in dom_colors]
+    colors = [ [c[2], c[1], c[0]] for c in dom_colors]
 
     start = time.perf_counter()
     leds.write(colors)
