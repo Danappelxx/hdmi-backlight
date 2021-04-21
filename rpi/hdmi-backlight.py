@@ -106,8 +106,10 @@ counters = {
 }
 iters = 0
 
-# register interrupt handler
+# catch ctrl+c
 signal.signal(signal.SIGINT, signal_handler)
+# catch systemd stop
+signal.signal(signal.SIGTERM, signal_handler)
 
 leds = Leds()
 leds.open()
@@ -168,6 +170,7 @@ def apply_bounds(frame):
 
 pool = ThreadPool(4)
 
+last_check_time = None
 bounds = None
 while True:
     iter_start = time.perf_counter()
@@ -181,8 +184,14 @@ while True:
 
     start = time.perf_counter()
     if iters % 1000 == 0:
-        # print(iters)
         bounds = find_bounds(frame)
+
+        if last_check_time is not None:
+            delta = time.monotonic() - last_check_time
+            print(f"{iters} ({delta:.2f} sec per 1000 iter, approx. {1000/delta:.2f} fps)")
+        last_check_time = time.monotonic()
+        sys.stdout.flush()
+
     if bounds is not None:
         before_bounds_shape = frame.shape
         frame = apply_bounds(frame)
