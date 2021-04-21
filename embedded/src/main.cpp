@@ -47,7 +47,7 @@ CRGB readColor() {
 }
 
 void loop() {
-    if (serBuf.available() >= (2 + 4*3)) {
+    if (serBuf.available() >= (2 + 6*3)) {
         if (serBuf.read() != 52 || serBuf.read() != 25) {
             return;
         }
