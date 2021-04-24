@@ -7,32 +7,7 @@ import numpy as np
 import cv2
 from serial import Serial
 from multiprocessing.pool import ThreadPool
-
-class Leds:
-    def __init__(self):
-        self.device = Serial('/dev/ttyS0', 115200)
-
-    def open(self):
-        try:
-            self.device.open()
-            print("Opened serial port to LED peripheral")
-        except IOError:
-            self.close()
-            self.device.open()
-            print("Serial port to LED peripheral was already open, closed and opened again")
-
-    def close(self):
-        self.device.close()
-
-    def read(self):
-        return self.device.readline().decode('utf-8')
-
-    def write(self, colors):
-        # color: [[int;3];6]
-        data = [52, 25]
-        for color in colors:
-            data += color
-        return self.device.write(bytes(data))
+from leds import DMALeds
 
 # bufferless VideoCapture
 class VideoCapture:
@@ -79,9 +54,9 @@ def cleanup():
         icap.release()
         print("Released video capture")
     if leds is not None:
-        leds.write([ [0, 0, 0] for _ in range(6)])
-        leds.close()
-        print("Closed serial port")
+        leds.show([ [0, 0, 0] for _ in range(6)])
+        leds.cleanup()
+        print("Cleaned up LEDs")
     if iters is not 0:
         print(f"Performance statistics (average over {iters} iters):")
         print(f"  read frame:  {np.format_float_positional(counters['read frame'] / iters, trim='-')} sec ({100 * counters['read frame'] / counters['iter'] :.2f}%)")
@@ -111,8 +86,8 @@ signal.signal(signal.SIGINT, signal_handler)
 # catch systemd stop
 signal.signal(signal.SIGTERM, signal_handler)
 
-leds = Leds()
-leds.open()
+leds = DMALeds()
+leds.start()
 
 cap = VideoCapture(-1)
 cap.cap.set(cv2.CAP_PROP_FPS, 1)
@@ -188,7 +163,7 @@ while True:
 
         if last_check_time is not None:
             delta = time.monotonic() - last_check_time
-            print(f"{iters} ({delta:.2f} sec per 1000 iter, approx. {1000/delta:.2f} fps)")
+            print(f"{iters} ({delta:.2f} sec per 1000 iter, approx. {1000/delta:.2f} fps), bounds: {bounds}")
         last_check_time = time.monotonic()
         sys.stdout.flush()
 
@@ -212,10 +187,10 @@ while True:
     counters["processing mean"] += time.perf_counter() - start
 
     # bgr to rgb
-    colors = [ [c[2], c[1], c[0]] for c in dom_colors]
+    colors = [ [int(c[2]), int(c[1]), int(c[0])] for c in dom_colors]
 
     start = time.perf_counter()
-    leds.write(colors)
+    leds.show(colors)
     counters["led io"] += time.perf_counter() - start
 
     iters += 1
