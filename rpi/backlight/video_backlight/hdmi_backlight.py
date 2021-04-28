@@ -4,8 +4,8 @@ import sys
 import numpy as np
 from serial import Serial
 from multiprocessing.pool import ThreadPool
-from leds import DMALeds
-from videocapture import BufferlessVideoCapture
+from .leds import DMALeds
+from .videocapture import BufferlessVideoCapture
 
 # performance counters
 counters = {
