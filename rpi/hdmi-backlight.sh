@@ -7,4 +7,4 @@ set -e
 
 echo "performance" | tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
-/usr/bin/python3 /home/pi/hdmi-backlight.py
+/usr/bin/python3 /home/pi/backlight
