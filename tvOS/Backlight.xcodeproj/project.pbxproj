@@ -3,31 +3,27 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		371594A9262AB02300F5C185 /* ParticleSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 371594A8262AB02300F5C185 /* ParticleSwift */; };
-		371594AC262AB05F00F5C185 /* DeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371594AB262AB05F00F5C185 /* DeviceManager.swift */; };
 		371594AF262AB21000F5C185 /* keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 371594AE262AB21000F5C185 /* keys.json */; };
 		371594B8262AEFE200F5C185 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371594B7262AEFE200F5C185 /* Extensions.swift */; };
 		371594BB262AF02900F5C185 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371594BA262AF02900F5C185 /* Defaults.swift */; };
-		371594BE262AF11700F5C185 /* DeviceControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371594BD262AF11700F5C185 /* DeviceControlView.swift */; };
-		371594C1262AF43F00F5C185 /* DevicePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371594C0262AF43F00F5C185 /* DevicePickerView.swift */; };
 		371BA6EF262AA985003609CB /* BacklightApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371BA6EE262AA985003609CB /* BacklightApp.swift */; };
 		371BA6F1262AA985003609CB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371BA6F0262AA985003609CB /* ContentView.swift */; };
 		371BA6F3262AA986003609CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 371BA6F2262AA986003609CB /* Assets.xcassets */; };
 		371BA6F6262AA986003609CB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 371BA6F5262AA986003609CB /* Preview Assets.xcassets */; };
 		373D334C262CFB1500327376 /* BrightnessPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373D334B262CFB1500327376 /* BrightnessPickerView.swift */; };
+		37F92D18263A5B5300D18E9D /* BacklightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F92D17263A5B5300D18E9D /* BacklightManager.swift */; };
+		37F92D1A263A5F8200D18E9D /* BacklightManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F92D19263A5F8200D18E9D /* BacklightManagerViewModel.swift */; };
+		37F92D1C263A648100D18E9D /* BacklightManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F92D1B263A648100D18E9D /* BacklightManagerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		371594AB262AB05F00F5C185 /* DeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManager.swift; sourceTree = "<group>"; };
 		371594AE262AB21000F5C185 /* keys.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = keys.json; sourceTree = "<group>"; };
 		371594B7262AEFE200F5C185 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		371594BA262AF02900F5C185 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
-		371594BD262AF11700F5C185 /* DeviceControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceControlView.swift; sourceTree = "<group>"; };
-		371594C0262AF43F00F5C185 /* DevicePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePickerView.swift; sourceTree = "<group>"; };
 		371BA6EB262AA985003609CB /* Backlight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Backlight.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		371BA6EE262AA985003609CB /* BacklightApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklightApp.swift; sourceTree = "<group>"; };
 		371BA6F0262AA985003609CB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -35,6 +31,9 @@
 		371BA6F5262AA986003609CB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		371BA6F7262AA986003609CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		373D334B262CFB1500327376 /* BrightnessPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrightnessPickerView.swift; sourceTree = "<group>"; };
+		37F92D17263A5B5300D18E9D /* BacklightManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklightManager.swift; sourceTree = "<group>"; };
+		37F92D19263A5F8200D18E9D /* BacklightManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklightManagerViewModel.swift; sourceTree = "<group>"; };
+		37F92D1B263A648100D18E9D /* BacklightManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BacklightManagerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,7 +41,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				371594A9262AB02300F5C185 /* ParticleSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,11 +68,11 @@
 			children = (
 				371BA6EE262AA985003609CB /* BacklightApp.swift */,
 				371BA6F0262AA985003609CB /* ContentView.swift */,
-				371594C0262AF43F00F5C185 /* DevicePickerView.swift */,
-				371594BD262AF11700F5C185 /* DeviceControlView.swift */,
+				37F92D1B263A648100D18E9D /* BacklightManagerView.swift */,
+				37F92D19263A5F8200D18E9D /* BacklightManagerViewModel.swift */,
+				37F92D17263A5B5300D18E9D /* BacklightManager.swift */,
 				373D334B262CFB1500327376 /* BrightnessPickerView.swift */,
 				371594BA262AF02900F5C185 /* Defaults.swift */,
-				371594AB262AB05F00F5C185 /* DeviceManager.swift */,
 				371594B7262AEFE200F5C185 /* Extensions.swift */,
 				371BA6F2262AA986003609CB /* Assets.xcassets */,
 				371BA6F7262AA986003609CB /* Info.plist */,
@@ -109,7 +107,6 @@
 			);
 			name = Backlight;
 			packageProductDependencies = (
-				371594A8262AB02300F5C185 /* ParticleSwift */,
 			);
 			productName = Backlight;
 			productReference = 371BA6EB262AA985003609CB /* Backlight.app */;
@@ -139,7 +136,6 @@
 			);
 			mainGroup = 371BA6E2262AA985003609CB;
 			packageReferences = (
-				371594A7262AB02300F5C185 /* XCRemoteSwiftPackageReference "particle-swift" */,
 			);
 			productRefGroup = 371BA6EC262AA985003609CB /* Products */;
 			projectDirPath = "";
@@ -169,12 +165,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				373D334C262CFB1500327376 /* BrightnessPickerView.swift in Sources */,
+				37F92D18263A5B5300D18E9D /* BacklightManager.swift in Sources */,
 				371BA6F1262AA985003609CB /* ContentView.swift in Sources */,
 				371594BB262AF02900F5C185 /* Defaults.swift in Sources */,
-				371594AC262AB05F00F5C185 /* DeviceManager.swift in Sources */,
-				371594C1262AF43F00F5C185 /* DevicePickerView.swift in Sources */,
+				37F92D1C263A648100D18E9D /* BacklightManagerView.swift in Sources */,
+				37F92D1A263A5F8200D18E9D /* BacklightManagerViewModel.swift in Sources */,
 				371594B8262AEFE200F5C185 /* Extensions.swift in Sources */,
-				371594BE262AF11700F5C185 /* DeviceControlView.swift in Sources */,
 				371BA6EF262AA985003609CB /* BacklightApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -364,25 +360,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		371594A7262AB02300F5C185 /* XCRemoteSwiftPackageReference "particle-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Danappelxx/particle-swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		371594A8262AB02300F5C185 /* ParticleSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 371594A7262AB02300F5C185 /* XCRemoteSwiftPackageReference "particle-swift" */;
-			productName = ParticleSwift;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 371BA6E3262AA985003609CB /* Project object */;
 }

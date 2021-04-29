@@ -12,7 +12,6 @@ struct BacklightApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(DeviceManager.shared)
                 .environmentObject(Defaults.shared)
         }
     }

@@ -15,9 +15,6 @@ public class Defaults: ObservableObject {
         didSet {
             UserDefaults.standard.set(deviceId, forKey: "device_id")
         }
-        willSet {
-            self.objectWillChange.send()
-        }
     }
 
     private init() {
