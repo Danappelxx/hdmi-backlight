@@ -56,13 +56,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         length = int(self.headers["content-length"])
         message = json.loads(self.rfile.read(length))
 
+        print(f"got post request: {self.path}, message: {message}")
+
         if self.path == "/brightness":
             self.manager.set_brightness(message["brightness"])
         elif self.path == "/state":
             new_state = message["state"]
-            if new_state == "VIDEO":
+            if new_state == BacklightManager.STATE_VIDEO:
                 self.manager.transition(BacklightManager.STATE_VIDEO)
-            elif new_state == "AUDIO":
+            elif new_state == BacklightManager.STATE_AUDIO:
                 self.manager.transition(BacklightManager.STATE_AUDIO)
             else:
                 self.send_response(400)
@@ -118,14 +120,15 @@ class BacklightManager:
         print("BacklightManager broke loop")
 
     def transition(self, state):
-        if self.state == state:
-            pass
-        elif self.state == self.STATE_VIDEO and state == self.STATE_AUDIO:
+        if self.state == self.STATE_VIDEO and state == self.STATE_AUDIO:
             print(f"transition VIDEO -> AUDIO")
             self.state = self.STATE_CHANGING_VIDEO_TO_AUDIO
         elif self.state == self.STATE_AUDIO and state == self.STATE_VIDEO:
             print(f"transition AUDIO -> VIDEO")
             self.state = self.STATE_CHANGING_AUDIO_TO_VIDEO
+        else:
+            print(f"invalid transition from {self.state} to {state}")
+
         self.set_brightness(self.brightness)
 
     def set_brightness(self, brightness):
@@ -183,7 +186,7 @@ if __name__ == "__main__":
     server_thread = Thread(target=serve)
     server_thread.start()
 
-    manager.state = BacklightManager.STATE_AUDIO
+    manager.state = BacklightManager.STATE_VIDEO
     manager.run()
 
     print("Killing server thread...")
