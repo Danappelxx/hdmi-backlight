@@ -27,18 +27,58 @@ struct BacklightManagerView: View {
         if let brightness = viewModel.brightness, let state = viewModel.state {
 
             VStack {
-                Text(String("state: \(state)"))
 
+                Text(String("State"))
+                    .font(.headline)
+
+                HStack {
+
+                    Button(
+                        action: {
+                            self.viewModel.setState(.video)
+                        },
+                        label: {
+                            if state == .video {
+                                Text("Video")
+                                    .underline()
+                            } else {
+                                Text("Video")
+                            }
+                        }
+                    )
+
+                    Button(
+                        action: {
+                            self.viewModel.setState(.audio)
+                        },
+                        label: {
+                            if state == .audio {
+                                Text("Audio")
+                                    .underline()
+                            } else {
+                                Text("Audio")
+                            }
+                        }
+                    )
+                }
+
+                Divider()
+                    .padding()
+
+                Text("Brightness")
+                    .font(.headline)
                 BrightnessPickerView(increment: 5, bounds: 0..<255, brightness: brightness) { newValue in
                     self.viewModel.setBrightness(newValue)
                 }
-            }.sheet(item: self.errorBinding) { error in
-                Text("Error: \(error)")
-                Button("Try again") {
-                    self.viewModel.error = nil
-                    self.viewModel.refresh()
-                }
+
             }
+                .sheet(item: self.errorBinding) { error in
+                    Text("Error: \(error)")
+                    Button("Try again") {
+                        self.viewModel.error = nil
+                        self.viewModel.refresh()
+                    }
+                }
 
         } else {
             if let error = viewModel.error {
