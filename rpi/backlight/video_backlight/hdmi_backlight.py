@@ -19,6 +19,10 @@ iters = 0
 cap = None
 leds = None
 
+def get_leds():
+    global leds
+    return leds
+
 def cleanup():
     global counters, iters, cap, leds
 
@@ -91,13 +95,8 @@ def find_bounds(frame):
 def apply_bounds(frame, bounds):
     return frame[bounds[0]:bounds[1]+1, bounds[2]:bounds[3]+1]
 
-def run():
+def run(should_stop):
     global counters, iters, cap, leds
-
-    # catch ctrl+c
-    signal.signal(signal.SIGINT, signal_handler)
-    # catch systemd stop
-    signal.signal(signal.SIGTERM, signal_handler)
 
     leds = DMALeds()
     leds.start()
@@ -108,14 +107,15 @@ def run():
         print("Capturing video")
     else:
         cleanup()
-        sys.exit("Unable to open capture device")
+        print("Unable to open capture device")
+        return
 
     cap.start()
 
     pool = ThreadPool(4)
     last_check_time = None
     bounds = None
-    while True:
+    while not should_stop():
         iter_start = time.perf_counter()
 
         start = time.perf_counter()
@@ -168,4 +168,9 @@ def run():
     cleanup()
 
 if __name__ == "__main__":
+    # catch ctrl+c
+    signal.signal(signal.SIGINT, signal_handler)
+    # catch systemd stop
+    signal.signal(signal.SIGTERM, signal_handler)
+
     run()

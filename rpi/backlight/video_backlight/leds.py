@@ -20,6 +20,12 @@ class DMALeds:
     def cleanup(self):
         self.strip._cleanup()
 
+    def set_brightness(self, brightness):
+        self.strip.setBrightness(brightness)
+
+    def get_brightness(self):
+        return self.strip.getBrightness()
+
     def show(self, colors):
         colors = [Color(red=c[0], green=c[1], blue=c[2]) for c in colors]
         # colors: [upper_left, upper_middle, upper_right, lower_left, lower_middle, lower_right]
