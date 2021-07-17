@@ -90,7 +90,6 @@ class BacklightManager:
     def __init__(self):
         self.state = self.STATE_NONE
         self.brightness = 255
-        self.stopped = False
 
     def _should_stop(self):
         return self.state == self.STATE_CHANGING_VIDEO_TO_AUDIO or self.state == self.STATE_CHANGING_AUDIO_TO_VIDEO or self.state == self.STATE_STOPPED
@@ -116,7 +115,6 @@ class BacklightManager:
                 # should never happen?
                 print(f"UNEXPECTED STATE: {self.state}")
                 break
-        self.stopped = True
         print("BacklightManager broke loop")
 
     def transition(self, state):
