@@ -4,7 +4,7 @@ import pyaudio
 from . import config
 
 
-def start_stream(should_stop, callback):
+def start_stream(lock, callback):
     p = pyaudio.PyAudio()
     frames_per_buffer = int(config.MIC_RATE / config.FPS)
     stream = p.open(format=pyaudio.paInt16,
@@ -14,7 +14,7 @@ def start_stream(should_stop, callback):
                     frames_per_buffer=frames_per_buffer)
     overflows = 0
     prev_ovf_time = time.time()
-    while not should_stop():
+    while not lock.should_release():
         try:
             y = np.fromstring(stream.read(frames_per_buffer, exception_on_overflow=False), dtype=np.int16)
             y = y.astype(np.float32)
@@ -30,3 +30,5 @@ def start_stream(should_stop, callback):
     stream.stop_stream()
     stream.close()
     p.terminate()
+
+    lock.release()

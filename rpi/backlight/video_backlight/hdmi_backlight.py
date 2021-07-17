@@ -95,8 +95,10 @@ def find_bounds(frame):
 def apply_bounds(frame, bounds):
     return frame[bounds[0]:bounds[1]+1, bounds[2]:bounds[3]+1]
 
-def run(should_stop):
+def run(lock):
     global counters, iters, cap, leds
+
+    lock.acquire()
 
     leds = DMALeds()
     leds.start()
@@ -115,7 +117,7 @@ def run(should_stop):
     pool = ThreadPool(4)
     last_check_time = None
     bounds = None
-    while not should_stop():
+    while not lock.should_release():
         iter_start = time.perf_counter()
 
         start = time.perf_counter()
@@ -167,10 +169,14 @@ def run(should_stop):
 
     cleanup()
 
+    lock.release()
+
+
 if __name__ == "__main__":
     # catch ctrl+c
     signal.signal(signal.SIGINT, signal_handler)
     # catch systemd stop
     signal.signal(signal.SIGTERM, signal_handler)
 
-    run()
+    from ..backlight_lock import BacklightLock
+    run(BacklightLock())

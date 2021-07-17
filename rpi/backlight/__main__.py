@@ -1,5 +1,6 @@
 from video_backlight import get_leds as get_video_leds, run as video_run, cleanup as video_cleanup
 from audio_backlight import get_leds as get_audio_leds, run as audio_run
+from backlight_lock import BacklightLock
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
@@ -78,6 +79,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
 
+
 class BacklightManager:
     STATE_STOPPED = -1
     STATE_NONE = 0
@@ -90,6 +92,7 @@ class BacklightManager:
     def __init__(self):
         self.state = self.STATE_NONE
         self.brightness = 255
+        self.lock = BacklightLock()
 
     def _should_stop(self):
         return self.state == self.STATE_CHANGING_VIDEO_TO_AUDIO or self.state == self.STATE_CHANGING_AUDIO_TO_VIDEO or self.state == self.STATE_STOPPED
@@ -98,19 +101,17 @@ class BacklightManager:
         while True:
             print(f"state: {self.state}")
             if self.state == self.STATE_VIDEO:
-                video_run(self._should_stop)
+                video_run(self.lock)
                 if self.state == self.STATE_VIDEO:
                     # if no change in state, then we stopped because of an error
                     self.state = self.STATE_ERROR
             elif self.state == self.STATE_AUDIO:
-                audio_run(self._should_stop)
+                audio_run(self.lock)
                 if self.state == self.STATE_AUDIO:
                     # if no change in state, then we stopped because of an error
                     self.state = self.STATE_ERROR
-            elif self.state == self.STATE_CHANGING_VIDEO_TO_AUDIO:
-                self.state = self.STATE_AUDIO
-            elif self.state == self.STATE_CHANGING_AUDIO_TO_VIDEO:
-                self.state = self.STATE_VIDEO
+            elif self.state in [self.STATE_CHANGING_VIDEO_TO_AUDIO, self.STATE_CHANGING_AUDIO_TO_VIDEO]:
+                continue
             else:
                 # should never happen?
                 print(f"UNEXPECTED STATE: {self.state}")
@@ -121,9 +122,15 @@ class BacklightManager:
         if self.state == self.STATE_VIDEO and state == self.STATE_AUDIO:
             print(f"transition VIDEO -> AUDIO")
             self.state = self.STATE_CHANGING_VIDEO_TO_AUDIO
+            self.lock.wait_for_release()
+            self.state = self.STATE_AUDIO
+            self.lock.wait_for_acquired()
         elif self.state == self.STATE_AUDIO and state == self.STATE_VIDEO:
             print(f"transition AUDIO -> VIDEO")
             self.state = self.STATE_CHANGING_AUDIO_TO_VIDEO
+            self.lock.wait_for_release()
+            self.state = self.STATE_VIDEO
+            self.lock.wait_for_acquired()
         else:
             print(f"invalid transition from {self.state} to {state}")
 
@@ -149,12 +156,14 @@ class BacklightManager:
         else:
             return None
 
+
 def kill_thread(thread):
     thread_id = thread.ident
     res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
     if res > 1:
         ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
         print("Exception raise failure")
+
 
 def signal_handler(signum, frame):
     # ignore additional signals
@@ -168,6 +177,7 @@ def signal_handler(signum, frame):
 
     sys.exit(0)
 
+
 if __name__ == "__main__":
     # catch ctrl+c
     signal.signal(signal.SIGINT, signal_handler)
@@ -177,6 +187,7 @@ if __name__ == "__main__":
     manager = BacklightManager()
 
     server = HTTPServer(("0.0.0.0", 80), RequestHandler(manager))
+
     def serve():
         print("Starting http server on 0.0.0.0:80")
         server.serve_forever()
